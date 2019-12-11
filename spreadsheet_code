@@ -1,0 +1,102 @@
+// onOpen(e) runs when a user opens a spreadsheet, document, presentation, or form that the user has permission to edit.
+function onOpen() {
+  var spreadsheet = SpreadsheetApp.getActive();
+  var menuItems = [
+    {name: 'Fibonacci', functionName: 'fibonacci'},
+    {name: 'FiboTab', functionName: 'fiboTab'},
+    {name: 'Make a Copy', functionName: 'MakeACopy'}
+  ];
+  // add a drop down menu with the menu item objects (name and function to call)
+  spreadsheet.addMenu('Operations', menuItems);
+}
+
+// Operation 0 - Factorial
+function myFactorial(num) {
+  if (typeof num != 'number') {
+    return null;
+  }
+  if (num <= 1) {
+    return 1;
+  }
+  return num * myFactorial(num - 1);
+}
+
+// Calculates fibonacci numbers
+function fibo(num) {
+  var fib = [];
+  fib[0] = 0;
+  fib[1] = 1;
+  for (var i = 2; i <= num; i++) {
+    fib[i] = fib[i - 2] + fib[i - 1];
+  }
+  return fib;
+}
+
+// Operation 1 - List out fibonacci sequence
+function fibonacci() {
+  // grab cell data from selected cell
+  var cell = SpreadsheetApp.getActiveSheet().getActiveCell();
+  // grab number from selected cell
+  var cellValue = cell.getValue();
+  // error check
+  if (typeof cellValue != 'number') {
+    Browser.msgBox('Error', "Can't compute Fibonacci sequence from this value",
+        Browser.Buttons.OK);
+    return;
+  }
+  // result gathers the fibo output
+  var result = fibo(cellValue);
+  var formattedResult = [];
+
+  for (var i = 0; i < result.length; i++) {
+    formattedResult.push([result[i]]);
+  }
+  // add 1 to the row selected
+  var row = cell.getRow() + 2;
+  var column = cell.getColumn();
+  // getRange(row, column, numRows, numColumns) Returns the range with the top left cell at the given coordinates with the given number of rows and columns.
+  // setvalues Sets a rectangular grid of values (must match dimensions of this range).
+  var output = SpreadsheetApp.getActiveSheet().getRange(row, column, result.length, 1).setValues(formattedResult);
+}
+
+// Operation 2 - 
+function fiboTab() {
+  var cell = SpreadsheetApp.getActiveSheet().getActiveCell();
+  var cellValue = cell.getValue();
+  if (typeof cellValue != 'number') {
+    Browser.msgBox('Error', "Can't compute Fibonacci sequence from this value",
+        Browser.Buttons.OK);
+    return;
+  }
+  var spreadsheet = SpreadsheetApp.getActive();
+  var fiboSheet = spreadsheet.getSheetByName('Fibo');
+  if (fiboSheet) {
+//    fiboSheet.clear();
+    fiboSheet.activate();
+  } else {
+    fiboSheet =
+        spreadsheet.insertSheet('Fibo', spreadsheet.getNumSheets());
+  }
+  var result = fibo(cellValue);
+  var formattedResult = [];
+  for (var i = 0; i < result.length; i++) {
+    formattedResult.push([result[i]]);
+  }
+  var col = SpreadsheetApp.getActiveSheet().getLastColumn() + 1;
+  var output = SpreadsheetApp.getActiveSheet().getRange(1, col, result.length, 1).setValues(formattedResult);
+}
+
+// Operation 3 Make a Copy
+
+function MakeACopy() {
+  var date = new Date();
+    
+  var id = SpreadsheetApp.getActive().getId()
+  
+   //Make a copy of the template file
+  var documentId = DriveApp.getFileById(id).makeCopy('Working Copy ' + date).getId();
+  
+  //Rename the copied file
+  // DriveApp.getFileById(documentId).setName('New Name ' + date );
+
+}
